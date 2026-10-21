@@ -36,3 +36,18 @@ deps/**/user.toml
 
 # Streaming EventTrace
 *.etli
+
+# Local Omniverse files
+__pycache__/
+*.pyc
+.cache/
+cache/
+logs/
+*.log
+
+# Generated Kit files
+_build/
+build/
+_deps/
+deps/
+.packman/

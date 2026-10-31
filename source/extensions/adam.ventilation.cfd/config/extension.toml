@@ -1,0 +1,19 @@
+[package]
+title = "Ventilation CFD"
+version = "0.3.0"  # Semantic Versioning is used: https://semver.org/
+description = "Real-time GPU airflow simulation of a ventilated garage, using a Warp lattice Boltzmann solver."
+category = "Simulation"
+changelog = "docs/CHANGELOG.md"
+keywords = ["cfd", "ventilation", "warp", "lbm"]
+readme = "docs/README.md"
+
+
+[dependencies]
+"omni.kit.uiapp" = {}
+"omni.ui" = {}
+"omni.usd" = {}
+"omni.warp.core" = {}
+
+
+[[python.module]]
+name = "adam.ventilation.cfd"

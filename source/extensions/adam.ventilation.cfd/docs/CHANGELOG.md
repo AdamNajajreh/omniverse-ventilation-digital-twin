@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.0]
+
+### Added
+- Unattended visitor mode for the public stream: opens the scene, starts the
+  flow, hides the editor, and starts over when a visitor leaves.
+
 ## [0.3.0]
 
 ### Added

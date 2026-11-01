@@ -9,6 +9,7 @@ Boltzmann method in Warp.
 - `flow_view.py`: tracers and the speed slice, computed on the GPU.
 - `visuals.py`: shows them as USD prims in the session layer.
 - `controller.py` and `extension.py`: the Kit update loop and control panel.
+- `visitor.py`: the unattended mode used by the public stream.
 
 `ventilation/validation` holds the lid-driven cavity benchmark, a headless
 garage run, and checks of the slats and the flow visuals. All work outside Kit.

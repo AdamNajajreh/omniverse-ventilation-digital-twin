@@ -1,12 +1,16 @@
 import carb.eventdispatcher
+import carb.settings
 import omni.ext
 import omni.ui as ui
 import omni.usd
 
 from .controller import SimulationController
 from .flow_view import PALETTE, SPEED_RANGE
+from .visitor import VisitorMode
 
 WINDOW_TITLE = "Ventilation Control Panel"
+VISITOR_SCENE_SETTING = "/exts/adam.ventilation.cfd/visitorScene"
+VISITOR_RESET_FILE_SETTING = "/exts/adam.ventilation.cfd/visitorResetFile"
 VENT_NAMES = ("CeilingVent", "WallVent")
 VENT_LABELS = {"CeilingVent": "Ceiling", "WallVent": "Wall"}
 DEFAULT_FAN_PERCENT = 50.0
@@ -26,6 +30,7 @@ METRICS = (
 class VentilationCfdExtension(omni.ext.IExt):
     def on_startup(self, _ext_id):
         self._controller = SimulationController(self._set_status, self._show_metrics, self._on_built)
+        self._fan_sliders = {}
         self._angle_sliders = {}
         self._slat_sliders = {}
         self._slat_frames = {}
@@ -44,12 +49,22 @@ class VentilationCfdExtension(omni.ext.IExt):
             on_event=lambda _event: self._rebuild_slats(),
         )
 
+        settings = carb.settings.get_settings()
+        scene = settings.get(VISITOR_SCENE_SETTING)
+        self._visitor = None
+        if scene:
+            reset_file = settings.get(VISITOR_RESET_FILE_SETTING)
+            self._visitor = VisitorMode(scene, reset_file, self._controller, self._reset_fans)
+
     def on_shutdown(self):
+        if self._visitor:
+            self._visitor.destroy()
         self._stage_opened = None
         self._controller.reset()
         self._controller = None
         self._subscriptions = []
         self._slat_subscriptions = {}
+        self._fan_sliders = {}
         self._angle_sliders = {}
         self._slat_sliders = {}
         self._slat_frames = {}
@@ -139,6 +154,7 @@ class VentilationCfdExtension(omni.ext.IExt):
             ui.Label("Fan %", width=SLIDER_LABEL_WIDTH)
             fan = ui.FloatSlider(min=0, max=100, step=1)
         fan.model.set_value(DEFAULT_FAN_PERCENT)
+        self._fan_sliders[vent_name] = fan
         self._subscriptions.append(
             fan.model.subscribe_value_changed_fn(
                 lambda model, vent=vent_name: self._controller.set_fan(vent, model.as_float / 100.0)
@@ -184,6 +200,10 @@ class VentilationCfdExtension(omni.ext.IExt):
                         )
                     )
         self._show_angles(vent_name, angles)
+
+    def _reset_fans(self):
+        for fan in self._fan_sliders.values():
+            fan.model.set_value(DEFAULT_FAN_PERCENT)
 
     def _rebuild_slats(self):
         for vent_name in self._slat_frames:
